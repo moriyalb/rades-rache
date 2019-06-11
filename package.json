@@ -1,0 +1,37 @@
+{
+  "name": "rades-rache",
+  "version": "0.1.0",
+  "description": "A lightweight, local dictionary service",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moriyalb/rades-rache.git"
+  },
+  "keywords": [
+    "db",
+    "database",
+    "nosql",
+    "redis",
+    "local",
+    "node"
+  ],
+  "author": "moriyalb",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/moriyalb/rades-rache/issues"
+  },
+  "homepage": "https://github.com/moriyalb/rades-rache#readme",
+  "devDependencies": {
+    "install": "^0.12.2",
+    "mocha": "^6.1.4",
+    "should": "^13.2.3"
+  },
+  "dependencies": {
+    "rades-rave": "^0.2.0",
+    "ramda": "^0.26.1",
+    "shutil.js": "^0.3.0"
+  }
+}
