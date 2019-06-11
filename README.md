@@ -1,7 +1,7 @@
 # rades-rache
 A lightweight, local dictionary service
 
-[![Build Status](https://travis-ci.org/moriyalb/shutil.js.svg?branch=master)](https://travis-ci.org/moriyalb/shutil.js)
+[![Build Status](https://travis-ci.org/moriyalb/rades-rache.svg?branch=master)](https://travis-ci.org/moriyalb/rades-rache)
 [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
 
 # Installation
