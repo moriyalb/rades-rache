@@ -35,3 +35,16 @@ async () => {
 * `rades-rache` is just use for quickly server development. It's just like redis but without any other dependency.
 * `rades-rache` is worked well with `rades` solution. [Learn More](https://github.com/moriyalb/rades)
 * `rades-rache` is not a stand-alone service. No network, no configure, just require it and use. 
+
+# APIs supported
+* string
+  * get
+  * set
+* lifetime
+  * expire
+  * pexipre
+  * expireat
+  * pexpireat
+  * ttl
+  * pttl
+  * persist
