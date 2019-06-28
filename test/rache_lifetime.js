@@ -31,6 +31,13 @@ describe("lifetime", ()=> {
 
 		let d = await Rache.get("mario")
 		should(d).be.exactly(null)
+
+		await Rache.hset("mhash", "key", 1)
+		await Rache.expire("mhash", 10)
+		ttl = await Rache.ttl("mhash")
+		ttl.should.aboveOrEqual(9)
+		ttl.should.belowOrEqual(10)
+
 		
 		await Rache.close()
 	})
