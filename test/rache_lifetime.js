@@ -9,35 +9,24 @@ describe("lifetime", ()=> {
 		await Rache.init()
 		await Rache.flushall()
 		
-		let ttl = await Rache.ttl("mario")
-		ttl.should.equal(-2)
+		;(await Rache.ttl("mario")).should.equal(-2)
 
 		await Rache.expire("mario", 10)
-		ttl = await Rache.ttl("mario")
-		ttl.should.equal(-2)
+		;(await Rache.ttl("mario")).should.equal(-2)
 		
 		await Rache.set("mario", 1)
-		ttl = await Rache.ttl("mario")
-		ttl.should.equal(-1)
+		;(await Rache.ttl("mario")).should.equal(-1)
 
 		await Rache.expire("mario", 10)
-		ttl = await Rache.ttl("mario")
-		ttl.should.aboveOrEqual(9)
-		ttl.should.belowOrEqual(10)
-
+		;(await Rache.ttl("mario")).should.approximately(10, 1)
+		
 		await Rache.expire("mario", -1)
-		ttl = await Rache.ttl("mario")
-		ttl.should.equal(-2)
-
-		let d = await Rache.get("mario")
-		should(d).be.exactly(null)
-
+		;(await Rache.ttl("mario")).should.equal(-2)
+		Rache.get("mario").should.be.fulfilledWith(null)
+		
 		await Rache.hset("mhash", "key", 1)
 		await Rache.expire("mhash", 10)
-		ttl = await Rache.ttl("mhash")
-		ttl.should.aboveOrEqual(9)
-		ttl.should.belowOrEqual(10)
-
+		;(await Rache.ttl("mhash")).should.approximately(10, 1)
 		
 		await Rache.close()
 	})
@@ -48,22 +37,15 @@ describe("lifetime", ()=> {
 		await Rache.flushall()
 		
 		await Rache.expireat("mario", Util.inow() + 10)
-		let ttl = await Rache.ttl("mario")
-		ttl.should.equal(-2)
+		;(await Rache.ttl("mario")).should.equal(-2)
 
 		await Rache.set("mario", 1)
-
 		await Rache.expireat("mario", Util.inow() + 10)
-		ttl = await Rache.ttl("mario")
-		ttl.should.aboveOrEqual(9)
-		ttl.should.belowOrEqual(10)
-
+		;(await Rache.ttl("mario")).should.approximately(10, 1)
+		
 		await Rache.expireat("mario", Util.inow() - 1)
-		ttl = await Rache.ttl("mario")
-		ttl.should.equal(-2)
-
-		let d = await Rache.get("mario")
-		should(d).be.exactly(null)
+		;(await Rache.ttl("mario")).should.equal(-2)
+		Rache.get("mario").should.be.fulfilledWith(null)
 		
 		await Rache.close()
 	})
@@ -76,8 +58,7 @@ describe("lifetime", ()=> {
 		await Rache.set("mario", 1)
 		await Rache.expire("mario", 10)
 		await Rache.persist("mario")
-		let ttl = await Rache.ttl("mario")
-		ttl.should.equal(-1)
+		;(await Rache.ttl("mario")).should.equal(-1)
 			
 		await Rache.close()
 	})
@@ -87,29 +68,22 @@ describe("lifetime", ()=> {
 		await Rache.init()
 		await Rache.flushall()
 		
-		let ttl = await Rache.pttl("mario")
-		ttl.should.equal(-2)
+		;(await Rache.pttl("mario")).should.equal(-2)
 
 		await Rache.pexpire("mario", 10000)
-		ttl = await Rache.ttl("mario")
-		ttl.should.equal(-2)
+		;(await Rache.ttl("mario")).should.equal(-2)
 		
 		await Rache.set("mario", 1)
-		ttl = await Rache.pttl("mario")
-		ttl.should.equal(-1)
+		;(await Rache.pttl("mario")).should.equal(-1)
 
 		await Rache.pexpire("mario", 10000)
-		ttl = await Rache.pttl("mario")
-		ttl.should.aboveOrEqual(9000)
-		ttl.should.belowOrEqual(10000)
-
-		await Rache.pexpire("mario", -1)
-		ttl = await Rache.pttl("mario")
-		ttl.should.equal(-2)
-
-		let d = await Rache.get("mario")
-		should(d).be.exactly(null)
+		;(await Rache.pttl("mario")).should.approximately(10000, 100)
 		
+		await Rache.pexpire("mario", -1)
+		;(await Rache.pttl("mario")).should.equal(-2)
+
+		Rache.get("mario").should.be.fulfilledWith(null)
+				
 		await Rache.close()
 	})
 
@@ -119,22 +93,16 @@ describe("lifetime", ()=> {
 		await Rache.flushall()
 		
 		await Rache.pexpireat("mario", Util.imnow() + 10000)
-		let ttl = await Rache.pttl("mario")
-		ttl.should.equal(-2)
+		;(await Rache.pttl("mario")).should.equal(-2)
 
 		await Rache.set("mario", 1)
-
 		await Rache.pexpireat("mario", Util.imnow() + 10000)
-		ttl = await Rache.pttl("mario")
-		ttl.should.aboveOrEqual(9000)
-		ttl.should.belowOrEqual(10000)
-
+		;(await Rache.pttl("mario")).should.approximately(10000, 100)
+		
 		await Rache.pexpireat("mario", Util.imnow() - 1)
-		ttl = await Rache.pttl("mario")
-		ttl.should.equal(-2)
+		;(await Rache.pttl("mario")).should.equal(-2)
 
-		let d = await Rache.get("mario")
-		should(d).be.exactly(null)
+		Rache.get("mario").should.be.fulfilledWith(null)
 		
 		await Rache.close()
 	})

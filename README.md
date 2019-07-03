@@ -23,8 +23,17 @@ let rache = require('rades-rache').default
 async () => {
 	await rache.init()
 
+	//String
 	await rache.set("mario", 1)
 	let v = await rache.get("mario") //"1"
+
+	//List
+	await rache.lpush("list", 1, 2, 3)
+	v = await rache.lrange("list", 0, -1) //"3", "2", "1"
+
+	//Hash
+	await rache.hmset("hash", "k", 1, "q", 2)
+	v = await rache.hgetall("hash") //"k", "1", "q", "2"
 	
 	await rache.close()
 }
@@ -38,13 +47,61 @@ async () => {
 
 # APIs supported
 * string
+  * append
+  * decr
+  * decrby
   * get
+  * getrange
+  * getset
+  * incr
+  * incrby
+  * incrbyfloat
+  * mget
+  * mset
+  * msetnx
   * set
+  * setrange
+  * strlen
+* hash
+  * hdel
+  * hexists
+  * hget
+  * hgetall
+  * hincrby
+  * hincrbyfloat
+  * hkeys
+  * hlen
+  * hmget
+  * hmset
+  * hset
+  * hsetnx
+  * hstrlen
+  * hvals
+* list
+  * lindex
+  * linsert
+  * llen
+  * lpop
+  * lpush
+  * lpushx
+  * lrange
+  * lrem
+  * lset
+  * ltrim
+  * rpop
+  * rpoplpush
+  * rpush
+  * rpushx
 * lifetime
   * expire
-  * pexipre
   * expireat
-  * pexpireat
-  * ttl
-  * pttl
   * persist
+  * pexipre  
+  * pexpireat  
+  * pttl
+  * ttl
+* db
+  * exists
+  * flushall
+  * type
+

@@ -8,19 +8,19 @@ describe("string", ()=> {
 		await Rache.init()
 		await Rache.flushall()
 
-		let v = await Rache.get("mario")
-		should(v).be.exactly(null)
+		Rache.get("mario").should.be.fulfilledWith(null)
 
 		await Rache.set("mario", 101)
-		v = await Rache.get("mario")
-		v.should.equal("101")
+		;(await Rache.get("mario")).should.equal("101")
 
 		await Rache.set("mario", "hello")
-		v = await Rache.get("mario")
-		v.should.equal("hello")
+		;(await Rache.get("mario")).should.equal("hello")
 
-		await Rache.lpush("marios", 1, 2, 3)
-		await Rache.get("marios").should.be.rejected()
+		await Rache.lpush("ml", 1, 2, 3)
+		Rache.get("ml").should.be.rejected()
+
+		await Rache.hset("mh", "key", "value")
+		Rache.set("mh", 2).should.be.fulfilledWith("OK")
 		
 		await Rache.close()
 	})
@@ -31,27 +31,22 @@ describe("string", ()=> {
 		await Rache.flushall()
 
 		await Rache.set("m", "good")
-		let r = await Rache.get("m")
-		r.should.equal("good")
+		;(await Rache.get("m")).should.equal("good")
 
 		await Rache.set("m", "not-set", "nx")
-		r = await Rache.get("m")
-		r.should.equal("good")
+		;(await Rache.get("m")).should.equal("good")
 
 		await Rache.set("m", "set", "xx")
-		r = await Rache.get("m")
-		r.should.equal("set")
+		;(await Rache.get("m")).should.equal("set")
 
 		await Rache.set("n", "not-set", "xx")
-		r = await Rache.get("n")
-		should(r).be.exactly(null)
-
+		Rache.get("n").should.be.fulfilledWith(null)
+		
 		await Rache.set("n", "set", "nx")
-		r = await Rache.get("n")
-		r.should.equal("set")
+		;(await Rache.get("n")).should.equal("set")
 
-		await Rache.set("n", "set", "nx", "xx").should.be.rejected()
-		await Rache.set("n", "set", "xx", "nx").should.be.rejected()
+		Rache.set("n", "set", "nx", "xx").should.be.rejected()
+		Rache.set("n", "set", "xx", "nx").should.be.rejected()
 
 		await Rache.close()
 	})
@@ -62,11 +57,14 @@ describe("string", ()=> {
 		await Rache.flushall()
 
 		await Rache.set("m", "value", "ex", 3)
-		let r = await Rache.get("m")
-		r.should.equal("value")
-		let ttl = await Rache.ttl("m")
-		ttl.should.aboveOrEqual(2)
-		ttl.should.belowOrEqual(3)
+		;(await Rache.get("m")).should.equal("value")
+
+		;(await Rache.ttl("m")).should.approximately(3, 1)
+
+		await Rache.set("m", "value1", "px", 5000)
+		;(await Rache.get("m")).should.equal("value1")
+
+		;(await Rache.pttl("m")).should.approximately(5000, 100)
 		
 		await Rache.close()
 	})
@@ -78,18 +76,19 @@ describe("string", ()=> {
 
 		await Rache.set("m", "hello")
 		await Rache.expire("m", 1000)
-		let r = await Rache.getset("m", "world")
-		r.should.equal("hello")
-		r = await Rache.get("m")
-		r.should.equal("world")
-		let ttl = await Rache.ttl("m")
-		ttl.should.equal(-1)
-
-		r = await Rache.getset("mario", "world")
-		should(r).be.exactly(null)
-		r = await Rache.get("m")
-		r.should.equal("world")
 		
+		;(await Rache.getset("m", "world")).should.equal("hello")
+		;(await Rache.get("m")).should.equal("world")
+		;(await Rache.ttl("m")).should.equal(-1)
+
+		let r = await Rache.getset("mario", "world")
+		should(r).be.exactly(null)
+		;(await Rache.get("mario")).should.equal("world")
+
+		await Rache.lpush("ml", 1, 2, 3)
+		Rache.getset("ml", 5).should.be.rejected()
+		Rache.getset("m").should.be.rejected()
+				
 		await Rache.close()
 	})
 
@@ -99,14 +98,12 @@ describe("string", ()=> {
 		await Rache.flushall()
 
 		await Rache.set("m", "hello")
-		let len = await Rache.strlen("m")
-		len.should.equal(5)
+		;(await Rache.strlen("m")).should.equal(5)
 
-		len = await Rache.strlen("mario")
-		len.should.equal(0)
+		;(await Rache.strlen("mario")).should.equal(0)
 
-		await Rache.lpush("marios", 1, 2, 3)
-		await Rache.strlen("marios").should.be.rejected()
+		await Rache.lpush("ml", 1, 2, 3)
+		Rache.strlen("ml").should.be.rejected()
 				
 		await Rache.close()
 	})
@@ -116,18 +113,17 @@ describe("string", ()=> {
 		await Rache.init()
 		await Rache.flushall()
 
-		let len = await Rache.append("m", "hello")
-		len.should.equal(5)
-
-		len = await Rache.append("m", " world")
-		len.should.equal(11)
+		;(await Rache.append("m", "hello")).should.equal(5)
+		;(await Rache.append("m", " world")).should.equal(11)
 
 		await Rache.expire("m", 10)
-		let ttl = await Rache.ttl("m")
-		ttl.should.aboveOrEqual(9)
+		;(await Rache.ttl("m")).should.approximately(10, 1)
+		;(await Rache.append("m", "gaga")).should.equal(15)
+		;(await Rache.ttl("m")).should.approximately(10, 1)
 
-		await Rache.lpush("marios", 1, 2, 3)
-		await Rache.append("marios").should.be.rejected()
+		await Rache.lpush("ml", 1, 2, 3)
+		Rache.append("ml", 1).should.be.rejected()
+		Rache.append("m").should.be.rejected()
 				
 		await Rache.close()
 	})
@@ -137,33 +133,25 @@ describe("string", ()=> {
 		await Rache.init()
 		await Rache.flushall()
 
-		let len = await Rache.setrange("m", 0, "hello")
-		len.should.equal(5)
-		let v = await Rache.get("m")
-		v.should.equal("hello")
+		;(await Rache.setrange("m", 0, "hello")).should.equal(5)
+		;(await Rache.get("m")).should.equal("hello")
 
-		len = await Rache.setrange("n", 4, "hello")
-		len.should.equal(9)
-		v = await Rache.get("n")
-		v.should.equal("\x00\x00\x00\x00hello")
+		;(await Rache.setrange("n", 4, "hello")).should.equal(9)
+		;(await Rache.get("n")).should.equal("\x00\x00\x00\x00hello")
 
-		len = await Rache.setrange("m", 2, "ww")
-		len.should.equal(5)
-		v = await Rache.get("m")
-		v.should.equal("hewwo")
+		;(await Rache.setrange("m", 2, "ww")).should.equal(5)
+		;(await Rache.get("m")).should.equal("hewwo")
 
-		len = await Rache.setrange("m", 4, "qxy")
-		len.should.equal(7)
-		v = await Rache.get("m")
-		v.should.equal("hewwqxy")
+		;(await Rache.setrange("m", 4, "qxy")).should.equal(7)
+		;(await Rache.get("m")).should.equal("hewwqxy")
 
-		len = await Rache.setrange("m", 10, "haha")
-		len.should.equal(14)
-		v = await Rache.get("m")
-		v.should.equal("hewwqxy\x00\x00\x00haha")
+		;(await Rache.setrange("m", 10, "haha")).should.equal(14)
+		;(await Rache.get("m")).should.equal("hewwqxy\x00\x00\x00haha")
 
-		await Rache.lpush("marios", 1, 2, 3)
-		await Rache.setrange("marios", 0, "a").should.be.rejected()
+		await Rache.lpush("ml", 1, 2, 3)
+		Rache.setrange("ml", 0, "a").should.be.rejected()
+		Rache.setrange("m", 0).should.be.rejected()
+		Rache.setrange("m").should.be.rejected()
 				
 		await Rache.close()
 	})
@@ -174,72 +162,75 @@ describe("string", ()=> {
 		await Rache.flushall()
 
 		await Rache.set("m", "hello rades-cache")
-		let v = await Rache.getrange("m", 0, 4)
-		v.should.equal("hello")
 
-		v = await Rache.getrange("m", -5, -1)
-		v.should.equal("cache")
+		;(await Rache.getrange("m", 0, 4)).should.equal("hello")
+		;(await Rache.getrange("m", -5, -1)).should.equal("cache")
+		;(await Rache.getrange("m", 6, -7)).should.equal("rades")
+		;(await Rache.getrange("m", -100, 2)).should.equal("hel")
+		;(await Rache.getrange("m", -3, 100)).should.equal("che")		
 
-		v = await Rache.getrange("m", 6, -7)
-		v.should.equal("rades")
-
-		v = await Rache.getrange("m", -100, 2)
-		v.should.equal("hel")
-
-		v = await Rache.getrange("m", -3, 100)
-		v.should.equal("che")
-
-		await Rache.getrange("m").should.be.rejected()
-		await Rache.getrange("m", 0).should.be.rejected()
-		await Rache.getrange("m", 0, 'b').should.be.rejected()
-		await Rache.getrange("m", 'a', 2).should.be.rejected()
-
-		await Rache.lpush("marios", 1, 2, 3)
-		await Rache.getrange("marios", 0, 0).should.be.rejected()
+		await Rache.lpush("ml", 1, 2, 3)
+		await Rache.getrange("ml", 0, 0).should.be.rejected()
+		Rache.getrange("m").should.be.rejected()
+		Rache.getrange("m", 0).should.be.rejected()
+		Rache.getrange("m", 0, 'b').should.be.rejected()
+		Rache.getrange("m", 'a', 2).should.be.rejected()
 
 		await Rache.close()
 	})
 
-	it("incr", async () => {
+	it("incr & decr", async () => {
 		const Rache = require("../lib/rache").default
 		await Rache.init()
 		await Rache.flushall()
 
 		await Rache.set("m", 50)
-		let r = await Rache.incr("m")
-		r.should.equal("51")
-		r = await Rache.get("m")
-		r.should.equal("51")
+		;(await Rache.incr("m")).should.equal("51")
+		;(await Rache.get("m")).should.equal("51")
+		;(await Rache.decr("m")).should.equal("50")
+		;(await Rache.get("m")).should.equal("50")
 
-		r = await Rache.incr("n")
-		r.should.equal("1")
-		r = await Rache.get("n")
-		r.should.equal("1")
+		;(await Rache.incr("n")).should.equal("1")
+		;(await Rache.get("n")).should.equal("1")
+		;(await Rache.decr("q")).should.equal("-1")
+		;(await Rache.get("q")).should.equal("-1")
 
 		await Rache.set("m", "hello")
-		await Rache.incr("m").should.be.rejected()
+		Rache.incr("m").should.be.rejected()
+		Rache.decr("m").should.be.rejected()
+		await Rache.lpush("ml", 1, 2)
+		Rache.incr("ml").should.be.rejected()
+		Rache.decr("ml").should.be.rejected()
 
 		await Rache.close()
 	})
 
-	it("incrby", async () => {
+	it("incrby & decrby", async () => {
 		const Rache = require("../lib/rache").default
 		await Rache.init()
 		await Rache.flushall()
 
 		await Rache.set("m", 50)
-		let r = await Rache.incrby("m", 20)
-		r.should.equal("70")
-		r = await Rache.get("m")
-		r.should.equal("70")
 
-		r = await Rache.incrby("n", -10)
-		r.should.equal("-10")
-		r = await Rache.get("n")
-		r.should.equal("-10")
+		;(await Rache.incrby("m", 20)).should.equal("70")
+		;(await Rache.get("m")).should.equal("70")
+		;(await Rache.decrby("m", 20)).should.equal("50")
+		;(await Rache.get("m")).should.equal("50")
 
-		await Rache.set("m", "hello")
-		await Rache.incrby("m").should.be.rejected()
+		;(await Rache.incrby("n", -10)).should.equal("-10")
+		;(await Rache.get("n")).should.equal("-10")
+		;(await Rache.decrby("q", -10)).should.equal("10")
+		;(await Rache.get("q")).should.equal("10")
+
+		await Rache.set("ms", "hello")
+		Rache.incrby("ms", 10).should.be.rejected()
+		Rache.decrby("ms", 10).should.be.rejected()
+		await Rache.lpush("ml", 1, 2)
+		Rache.incrby("ml", 10).should.be.rejected()
+		Rache.decrby("ml", 10).should.be.rejected()
+
+		Rache.incrby("m").should.be.rejected()
+		Rache.decrby("m").should.be.rejected()
 
 		await Rache.close()
 	})
@@ -250,6 +241,7 @@ describe("string", ()=> {
 		await Rache.flushall()
 
 		await Rache.set("m", 0.1)
+
 		let r = await Rache.incrbyfloat("m", 0.2)		
 		parseFloat(r).should.approximately(0.3, 1e-5)
 		r = await Rache.get("m")
@@ -268,76 +260,30 @@ describe("string", ()=> {
 		r = await Rache.incrbyfloat("n", 2.2e100)
 		parseFloat(r).should.approximately(2.2e100, 0)
 
-		await Rache.set("m", "hello")
-		await Rache.incrby("m").should.be.rejected()
+		await Rache.set("ms", "hello")
+		await Rache.incrbyfloat("ms").should.be.rejected()
+		await Rache.lpush("ml", 1, 2)
+		Rache.incrbyfloat("ml", 10).should.be.rejected()
+
+		Rache.incrbyfloat("m").should.be.rejected()
 
 		await Rache.close()
-	})
+	})	
 
-	it("decr", async () => {
-		const Rache = require("../lib/rache").default
-		await Rache.init()
-		await Rache.flushall()
-
-		await Rache.set("m", 50)
-		let r = await Rache.decr("m")
-		r.should.equal("49")
-		r = await Rache.get("m")
-		r.should.equal("49")
-
-		r = await Rache.decr("n")
-		r.should.equal("-1")
-		r = await Rache.get("n")
-		r.should.equal("-1")
-
-		await Rache.set("m", "hello")
-		await Rache.decr("m").should.be.rejected()
-
-		await Rache.close()
-	})
-
-	it("decrby", async () => {
-		const Rache = require("../lib/rache").default
-		await Rache.init()
-		await Rache.flushall()
-
-		await Rache.set("m", 50)
-		let r = await Rache.decrby("m", 20)
-		r.should.equal("30")
-		r = await Rache.get("m")
-		r.should.equal("30")
-
-		r = await Rache.decrby("n", -10)
-		r.should.equal("10")
-		r = await Rache.get("n")
-		r.should.equal("10")
-
-		await Rache.set("m", "hello")
-		await Rache.decrby("m").should.be.rejected()
-
-		await Rache.close()
-	})
 
 	it("mset", async () => {
 		const Rache = require("../lib/rache").default
 		await Rache.init()
 		await Rache.flushall()
 
-		let r = await Rache.mset("m1", 1, "m2", 2, "m3", 3)
-		r.should.equal("OK")
-		r = await Rache.get("m1")
-		r.should.equal("1")
-		r = await Rache.get("m2")
-		r.should.equal("2")
-		r = await Rache.get("m3")
-		r.should.equal("3")
+		;(await Rache.mset("m1", 1, "m2", 2, "m3", 3)).should.equal("OK")
+		;(await Rache.mget("m1", "m2", "m3")).should.deepEqual(["1", "2", "3"])
 
 		await Rache.expire("m2", 1000)
-		await Rache.mset("m1", 1, "m2", 2, "m3", 3)
-		let ttl = await Rache.ttl("m2")
-		ttl.should.equal(-1)
+		;(await Rache.mset("m1", 1, "m2", 2, "m3", 3)).should.equal("OK")
+		;(await Rache.ttl("m2")).should.equal(-1)
 
-		await Rache.mset("m", 1, "n").should.be.rejected()
+		Rache.mset("m", 1, "n").should.be.rejected()
 
 		await Rache.close()
 	})
@@ -347,25 +293,13 @@ describe("string", ()=> {
 		await Rache.init()
 		await Rache.flushall()
 
-		let r = await Rache.msetnx("m1", 1, "m2", 2, "m3", 3)
-		r.should.equal(1)
-		r = await Rache.get("m1")
-		r.should.equal("1")
-		r = await Rache.get("m2")
-		r.should.equal("2")
-		r = await Rache.get("m3")
-		r.should.equal("3")
+		;(await Rache.msetnx("m1", 1, "m2", 2, "m3", 3)).should.equal(1)
+		;(await Rache.mget("m1", "m2", "m3")).should.deepEqual(["1", "2", "3"])
 		
-		r = await Rache.msetnx("m1", 100, "m5", 5, "m6", 6)
-		r.should.equal(0)
-		r = await Rache.get("m1")
-		r.should.equal("1")
-		r = await Rache.get("m5")
-		should(r).be.exactly(null)
-		r = await Rache.get("m6")
-		should(r).be.exactly(null)
-
-		await Rache.msetnx("m", 1, "n").should.be.rejected()
+		;(await Rache.msetnx("m1", 100, "m5", 5, "m6", 6)).should.equal(0)
+		;(await Rache.mget("m1", "m5", "m6")).should.deepEqual(["1", null, null])
+		
+		Rache.msetnx("m", 1, "n").should.be.rejected()
 
 		await Rache.close()
 	})
@@ -381,6 +315,9 @@ describe("string", ()=> {
 		m2.should.equal("2")
 		m3.should.equal("3")
 		should(m4).be.exactly(null)
+
+		await Rache.lpush("ml", 1, 2)
+		Rache.mget("ml").should.be.rejected()
 
 		await Rache.close()
 	})

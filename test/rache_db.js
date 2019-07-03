@@ -10,11 +10,8 @@ describe("db", ()=> {
 		await Rache.flushall()
 		
 		await Rache.set("m", 1)
-		let r = await Rache.exists("m")
-		r.should.equal(1)
-
-		r = await Rache.exists("n")
-		r.should.equal(0)
+		;(await Rache.exists("m")).should.equal(1)
+		;(await Rache.exists("n")).should.equal(0)
 		
 		await Rache.close()
 	})
@@ -24,13 +21,14 @@ describe("db", ()=> {
 		await Rache.init()
 		await Rache.flushall()
 		
-		await Rache.set("m", 1)
-		let tp = await Rache.type("m")
-		tp.should.equal("string")
+		await Rache.set("ms", 1)
+		;(await Rache.type("ms")).should.equal("string")
 
-		await Rache.lpush("n", 1, 2, 3)
-		tp = await Rache.type("n")
-		tp.should.equal("list")
+		await Rache.hset("mh", "hello", 1)
+		;(await Rache.type("mh")).should.equal("hash")
+
+		await Rache.lpush("ml", 1, 2, 3)
+		;(await Rache.type("ml")).should.equal("list")
 		
 		await Rache.close()
 	})

@@ -2,6 +2,7 @@
 
 require('should')
 const Util = require("../lib/util")
+const R = require("ramda")
 
 describe("hash", ()=> {
 	it("hset", async () => {
@@ -9,19 +10,17 @@ describe("hash", ()=> {
 		await Rache.init()
 		await Rache.flushall()
 		
-		let r = await Rache.hset("m", "k", 1)
-		r.should.equal(1)
-		let v = await Rache.hget("m", "k")
-		v.should.equal("1")
+		;(await Rache.hset("m", "k", 1)).should.equal(1)
+		;(await Rache.hget("m", "k")).should.equal("1")
 
-		r = await Rache.hset("m", "k", 2)
-		r.should.equal(0)
-		v = await Rache.hget("m", "k")
-		v.should.equal("2")
+		;(await Rache.hset("m", "k", 2)).should.equal(0)
+		;(await Rache.hget("m", "k")).should.equal("2")
 
 		await Rache.set("ms", 1)
-		await Rache.hset("ms", "k", 2).should.be.rejected()
-		
+		Rache.hset("ms", "k", 2).should.be.rejected()
+		Rache.hset("m", "k").should.be.rejected()
+		Rache.hset("m").should.be.rejected()
+
 		await Rache.close()
 	})
 
@@ -30,18 +29,16 @@ describe("hash", ()=> {
 		await Rache.init()
 		await Rache.flushall()
 		
-		let r = await Rache.hsetnx("m", "k", 1)		
-		r.should.equal(1)
-		let v = await Rache.hget("m", "k")
-		v.should.equal("1")
+		;(await Rache.hsetnx("m", "k", 1)).should.equal(1)
+		;(await Rache.hget("m", "k")).should.equal("1")
 
-		r = await Rache.hsetnx("m", "k", 2)
-		r.should.equal(0)
-		v = await Rache.hget("m", "k")
-		v.should.equal("1")
+		;(await Rache.hsetnx("m", "k", 2)).should.equal(0)
+		;(await Rache.hget("m", "k")).should.equal("1")
 
 		await Rache.set("ms", 1)
-		await Rache.hsetnx("ms", "k", 2).should.be.rejected()
+		Rache.hsetnx("ms", "k", 2).should.be.rejected()
+		Rache.hsetnx("m", "k").should.be.rejected()
+		Rache.hsetnx("m").should.be.rejected()
 		
 		await Rache.close()
 	})
@@ -52,17 +49,14 @@ describe("hash", ()=> {
 		await Rache.flushall()
 		
 		await Rache.hsetnx("m", "k", 1)				
-		let v = await Rache.hget("m", "k")
-		v.should.equal("1")
+		;(await Rache.hget("m", "k")).should.equal("1")
 
-		v = await Rache.hget("m", "k1")
-		should(v).be.exactly(null)
-
-		v = await Rache.hget("m1", "k1")
-		should(v).be.exactly(null)
-
+		Rache.hget("m", "k1").should.be.fulfilledWith(null)
+		Rache.hget("m1", "k1").should.be.fulfilledWith(null)
+		
 		await Rache.set("ms", 1)
-		await Rache.hsetnx("ms", "k", 2).should.be.rejected()
+		Rache.hget("ms", "k").should.be.rejected()
+		Rache.hget("m").should.be.rejected()
 		
 		await Rache.close()
 	})
@@ -73,17 +67,13 @@ describe("hash", ()=> {
 		await Rache.flushall()
 		
 		await Rache.hsetnx("m", "k", 1)	
-		let v = await Rache.hexists("m", "k")
-		v.should.equal(1)
-
-		v = await Rache.hexists("m", "k1")
-		v.should.equal(0)
-
-		v = await Rache.hexists("m1", "k1")
-		v.should.equal(0)
+		;(await Rache.hexists("m", "k")).should.equal(1)
+		;(await Rache.hexists("m", "k1")).should.equal(0)
+		;(await Rache.hexists("m1", "k1")).should.equal(0)
 
 		await Rache.set("ms", 1)
-		await Rache.hexists("ms", "k", 2).should.be.rejected()
+		Rache.hexists("ms", "k").should.be.rejected()
+		Rache.hexists("m").should.be.rejected()
 		
 		await Rache.close()
 	})
@@ -94,21 +84,13 @@ describe("hash", ()=> {
 		await Rache.flushall()
 		
 		await Rache.hsetnx("m", "k", 1)	
-		let v = await Rache.hlen("m")
-		v.should.equal(1)
+		;(await Rache.hlen("m")).should.equal(1)
 
 		await Rache.hsetnx("m", "x", 2)	
-		v = await Rache.hlen("m")
-		v.should.equal(2)
-
-		v = await Rache.hexists("m", "k1")
-		v.should.equal(0)
-
-		v = await Rache.hexists("m1", "k1")
-		v.should.equal(0)
+		;(await Rache.hlen("m")).should.equal(2)
 
 		await Rache.set("ms", 1)
-		await Rache.hexists("ms", "k", 2).should.be.rejected()
+		await Rache.hlen("ms").should.be.rejected()
 		
 		await Rache.close()
 	})
@@ -118,33 +100,20 @@ describe("hash", ()=> {
 		await Rache.init()
 		await Rache.flushall()
 		
-		await Rache.hset("m", "k", 1)				
-		await Rache.hset("m", "k1", 1)				
-		await Rache.hset("m", "k2", 1)
-		let v = await Rache.hdel("m", "k")
-		v.should.equal(1)
+		await Rache.hmset("m", "k", 1, "k1", 2, "k2", 3)				
+		;(await Rache.hdel("m", "k")).should.equal(1)
+		;(await Rache.hdel("m", "kx")).should.equal(0)
+		;(await Rache.hdel("m", "k1", "kx", "ky")).should.equal(1)
+		;(await Rache.hlen("m")).should.equal(1)
 
-		v = await Rache.hdel("m", "kx")
-		v.should.equal(0)
-
-		v = await Rache.hdel("m", "k1", "kx", "ky")
-		v.should.equal(1)
-
-		v = await Rache.hlen("m")
-		v.should.equal(1)
-
-		await Rache.hset("m", "k", 1)
-		await Rache.hset("m", "k1", 1)
-
-		v = await Rache.hdel("m", "k", "k1", "k2", "kx", "ky")
-		v.should.equal(3)
-		v = await Rache.hlen("m")
-		v.should.equal(0)
-		v = await Rache.exists("m")
-		v.should.equal(0)
+		await Rache.hmset("m", "k", 1, "k1", 2)
+		;(await Rache.hdel("m", "k", "k1", "k2", "kx", "ky")).should.equal(3)
+		;(await Rache.hlen("m")).should.equal(0)
+		;(await Rache.exists("m")).should.equal(0)
 
 		await Rache.set("ms", 1)
-		await Rache.hdel("ms", "k").should.be.rejected()
+		Rache.hdel("ms", "k").should.be.rejected()
+		Rache.hdel("m").should.be.rejected()
 		
 		await Rache.close()
 	})
@@ -155,66 +124,37 @@ describe("hash", ()=> {
 		await Rache.flushall()
 		
 		await Rache.hset("m", "k", "cannotuse")
-		await Rache.hincrby("m", "k", 2).should.be.rejected()
+		Rache.hincrby("m", "k", 2).should.be.rejected()
 
 		await Rache.hset("m", "k", 1)
-		let r = await Rache.hincrby("m", "k", 5)
-		r.should.equal("6")
-		let v = await Rache.hget("m", "k")
-		r.should.equal("6")
+		;(await Rache.hincrby("m", "k", 5)).should.equal("6")
+		;(await Rache.hget("m", "k")).should.equal("6")
 
-		r = await Rache.hincrby("m", "k1", 3)
-		r.should.equal("3")
-		v = await Rache.hget("m", "k1")
-		r.should.equal("3")
+		;(await Rache.hincrby("m", "k1", 3)).should.equal("3")
+		;(await Rache.hget("m", "k1")).should.equal("3")
 
-		r = await Rache.hincrby("m1", "k1", 3)
-		r.should.equal("3")
-		v = await Rache.hget("m1", "k1")
-		r.should.equal("3")
+		;(await Rache.hincrby("m1", "k1", 3)).should.equal("3")
+		;(await Rache.hget("m1", "k1")).should.equal("3")
 
 		await Rache.set("ms", 1)
-		await Rache.hincrby("ms", "k", 2).should.be.rejected()
+		Rache.hincrby("ms", "k", 2).should.be.rejected()
+		Rache.hincrby("ms", "k").should.be.rejected()
+		Rache.hincrby("m").should.be.rejected()
 		
 		await Rache.close()
 	})
 
-	it("hmget", async () => {
-		const Rache = require("../lib/rache").default
-		await Rache.init()
-		await Rache.flushall()
-		
-		await Rache.hset("m", "k", 1)
-		await Rache.hset("m", "k1", 2)
-		await Rache.hset("m", "k2", 3)
-		let v = await Rache.hmget("m", "k", "kx", "k1", "ky", "k2")
-		v.length.should.equal(5)
-		v[0].should.equal("1")
-		should(v[1]).be.exactly(null)
-		v[2].should.equal("2")
-		should(v[3]).be.exactly(null)
-		v[4].should.equal("3")
-
-		await Rache.hmget("m").should.be.rejected()
-		
-		await Rache.close()
-	})
-
-	it("hmset", async () => {
+	it("hmget & hmset", async () => {
 		const Rache = require("../lib/rache").default
 		await Rache.init()
 		await Rache.flushall()
 		
 		await Rache.hmset("m", "k", 1, "k1", 2, "k2", 3)
-		let v = await Rache.hmget("m", "k", "kx", "k1", "ky", "k2")
-		v.length.should.equal(5)
-		v[0].should.equal("1")
-		should(v[1]).be.exactly(null)
-		v[2].should.equal("2")
-		should(v[3]).be.exactly(null)
-		v[4].should.equal("3")
-
-		await Rache.hmget("m").should.be.rejected()
+		;(await Rache.hmget("m", "k", "kx", "k1", "ky", "k2")).should.be.deepEqual(["1", null, "2", null, "3"])
+		
+		Rache.hmset("m").should.be.rejected()
+		Rache.hmset("m", "k").should.be.rejected()
+		Rache.hmget("m").should.be.rejected()
 		
 		await Rache.close()
 	})
@@ -225,14 +165,16 @@ describe("hash", ()=> {
 		await Rache.flushall()
 		
 		await Rache.hmset("m", "k", 1, "k1", 2, "k2", 3)
-		let v = await Rache.hkeys("m")
-		v.should.be.deepEqual(["k", "k1", "k2"])
+		;(await Rache.hkeys("m")).sort().should.be.deepEqual(["k", "k1", "k2"])
+		;(await Rache.hvals("m")).sort().should.be.deepEqual(["1", "2", "3"])
+		;(await Rache.hgetall("m")).should.be.deepEqual(R.flatten(R.zip(
+			await Rache.hkeys("m"), await Rache.hvals("m")
+		)))
 
-		v = await Rache.hvals("m")
-		v.should.be.deepEqual(["1", "2", "3"])
-
-		v = await Rache.hgetall("m")
-		v.should.be.deepEqual(["k", "1", "k1", "2", "k2", "3"])
+		await Rache.set("ms", 1)
+		Rache.hkeys("ms").should.be.rejected()
+		Rache.hvals("ms").should.be.rejected()
+		Rache.hgetall("ms").should.be.rejected()
 			
 		await Rache.close()
 	})
